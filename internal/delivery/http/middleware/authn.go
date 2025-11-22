@@ -10,7 +10,7 @@ import (
 
 const ctxClaimsKey string = "claims"
 
-func AuthN(v core.TokenValidator) func(http.Handler) http.Handler {
+func AuthN(v core.TokenManager) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			h := r.Header.Get("Authorization")

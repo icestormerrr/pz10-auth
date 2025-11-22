@@ -9,16 +9,16 @@ import (
 )
 
 type AuthService struct {
-	userRepo    core.UserRepo
-	sessionRepo core.SessionRepo
-	tokenVal    core.TokenValidator
+	userRepo     core.UserRepo
+	sessionRepo  core.SessionRepo
+	tokenManager core.TokenManager
 }
 
-func NewAuthService(u core.UserRepo, s core.SessionRepo, t core.TokenValidator) *AuthService {
+func NewAuthService(u core.UserRepo, s core.SessionRepo, t core.TokenManager) *AuthService {
 	return &AuthService{
-		userRepo:    u,
-		sessionRepo: s,
-		tokenVal:    t,
+		userRepo:     u,
+		sessionRepo:  s,
+		tokenManager: t,
 	}
 }
 
@@ -36,7 +36,7 @@ func (s *AuthService) Login(email, password string) (accessToken, refreshToken s
 		return "", "", 0, errors.New("unauthorized")
 	}
 
-	accessToken, err = s.tokenVal.Sign(u.ID, u.Email, u.Role)
+	accessToken, err = s.tokenManager.Sign(u.ID, u.Email, u.Role)
 	if err != nil {
 		return "", "", 0, err
 	}
@@ -68,7 +68,7 @@ func (s *AuthService) RefreshTokens(userID int64, oldRefreshToken string) (newAc
 		return "", "", errors.New("user_not_found")
 	}
 
-	newAccessToken, err = s.tokenVal.Sign(u.ID, u.Email, u.Role)
+	newAccessToken, err = s.tokenManager.Sign(u.ID, u.Email, u.Role)
 	if err != nil {
 		return "", "", err
 	}

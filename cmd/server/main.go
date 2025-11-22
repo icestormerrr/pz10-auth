@@ -15,9 +15,15 @@ import (
 func main() {
 	cfg := config.Load()
 
-	sessionRepo := repos.NewSessionRedisRepo(cfg)
+	sessionRepo := repos.NewSessionRedisRepo(repos.SessionRedisRepoConfig{
+		RefreshTTL:    cfg.RefreshTTL,
+		RedisHost:     cfg.RedisHost,
+		RedisPort:     cfg.RedisPort,
+		RedisPassword: cfg.RedisPassword,
+		RedisDB:       cfg.RedisDB,
+	})
 	userRepo := repos.NewUserInMemoryRepo()
-	jwtValidator, err := jwt.NewRS256(cfg.PrivateRsaKey, cfg.PublicRsaKey, cfg.AccessTTL)
+	jwtValidator, err := jwt.NewRS256TokenManager(cfg.PrivateRsaKey, cfg.PublicRsaKey)
 	if err != nil {
 		log.Fatal("cannot parse RSA keys: ", err)
 	}

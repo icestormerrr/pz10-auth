@@ -10,13 +10,12 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type RS256 struct {
+type RS256TokenManager struct {
 	privateKey *rsa.PrivateKey
 	publicKey  *rsa.PublicKey
-	ttl        time.Duration
 }
 
-func NewRS256(privateKeyPEM, publicKeyPEM string, ttl time.Duration) (*RS256, error) {
+func NewRS256TokenManager(privateKeyPEM, publicKeyPEM string) (*RS256TokenManager, error) {
 	priv, err := parseRSAPrivateKeyFromPEM([]byte(privateKeyPEM))
 	if err != nil {
 		return nil, err
@@ -26,21 +25,20 @@ func NewRS256(privateKeyPEM, publicKeyPEM string, ttl time.Duration) (*RS256, er
 		return nil, err
 	}
 
-	return &RS256{
+	return &RS256TokenManager{
 		privateKey: priv,
 		publicKey:  pub,
-		ttl:        ttl,
 	}, nil
 }
 
-func (r *RS256) Sign(userID int64, email, role string) (string, error) {
+func (r *RS256TokenManager) Sign(userID int64, email, role string, ttl time.Duration) (string, error) {
 	now := time.Now()
 	claims := jwt.MapClaims{
 		"sub":   userID,
 		"email": email,
 		"role":  role,
 		"iat":   now.Unix(),
-		"exp":   now.Add(r.ttl).Unix(),
+		"exp":   now.Add(ttl).Unix(),
 		"iss":   "pz10-auth",
 		"aud":   "pz10-clients",
 	}
@@ -49,7 +47,7 @@ func (r *RS256) Sign(userID int64, email, role string) (string, error) {
 	return token.SignedString(r.privateKey)
 }
 
-func (r *RS256) Parse(tokenStr string) (map[string]any, error) {
+func (r *RS256TokenManager) Parse(tokenStr string) (map[string]any, error) {
 	t, err := jwt.Parse(tokenStr, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, errors.New("unexpected signing method")

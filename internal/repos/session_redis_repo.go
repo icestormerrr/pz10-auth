@@ -3,17 +3,25 @@ package repos
 import (
 	"context"
 	"strconv"
+	"time"
 
-	"github.com/icestormerrr/pz10-auth/internal/utils/config"
 	"github.com/redis/go-redis/v9"
 )
 
+type SessionRedisRepoConfig struct {
+	RefreshTTL    time.Duration
+	RedisHost     string
+	RedisPort     string
+	RedisPassword string
+	RedisDB       int
+}
+
 type SessionRedisRepo struct {
 	db     *redis.Client
-	config config.Config
+	config SessionRedisRepoConfig
 } // key = userID, value = refreshToken
 
-func NewSessionRedisRepo(config config.Config) *SessionRedisRepo {
+func NewSessionRedisRepo(config SessionRedisRepoConfig) *SessionRedisRepo {
 	db := redis.NewClient(&redis.Options{
 		Addr:     config.RedisHost + ":" + config.RedisPort,
 		Password: config.RedisPassword,
