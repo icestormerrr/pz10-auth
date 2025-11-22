@@ -51,15 +51,8 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 		http_utils.WriteError(w, http.StatusUnauthorized, "missing_refresh_token", nil)
 		return
 	}
-	// TODO: а точно ли нужен access токен при refresh?
-	claims, ok := r.Context().Value(core.CtxClaimsKey).(map[string]any)
-	if !ok {
-		http_utils.WriteError(w, http.StatusUnauthorized, "invalid_claims", nil)
-		return
-	}
 
-	userID := int64(claims["sub"].(float64))
-	newAccess, newRefresh, err := h.authService.RefreshTokens(userID, cookie.Value)
+	newAccess, newRefresh, err := h.authService.RefreshTokens(cookie.Value)
 	if err != nil {
 		http_utils.WriteError(w, http.StatusUnauthorized, err.Error(), nil)
 		return

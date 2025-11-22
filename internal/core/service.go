@@ -9,7 +9,7 @@ type UserService interface {
 
 type AuthService interface {
 	Login(email, password string) (accessToken, refreshToken string, userID int64, err error)
-	RefreshTokens(userID int64, oldRefreshToken string) (newAccessToken, newRefreshToken string, err error)
+	RefreshTokens(oldRefreshToken string) (newAccessToken, newRefreshToken string, err error)
 }
 
 type TokenManager interface {

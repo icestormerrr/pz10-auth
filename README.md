@@ -54,17 +54,32 @@ PZ10-AUTH
 ```
 
 
-## Скриншоты (Windows 11)
+## Демонстрация работы (Windows 11)
 
-### 1. Аунтефикация (Админ)
+### 1. Аунтефикация c неверными данными, превышение rate limit = 2 - для примера (Админ)
+```bash
+curl -Uri "http://localhost:8080/api/v1/login" -Method Post -Headers @{"Content-Type"="application/json"} -Body '{"Email":"admin@example.com","Password":"sesdaascret123"}'
+```
+```bash
+curl -Uri "http://localhost:8080/api/v1/login" -Method Post -Headers @{"Content-Type"="application/json"} -Body '{"Email":"admin@example.com","Password":"sesdaascret123"}'
+```
 ```bash
 curl -Uri "http://localhost:8080/api/v1/login" -Method Post -Headers @{"Content-Type"="application/json"} -Body '{"Email":"admin@example.com","Password":"secret123"}'
 ```
 Результат:
 
-![alt text](image.png)
+![alt text](screenshots/image.png)
 
-### 2. Авторизация (Админ)
+### 2. Аунтефикация c верными данными (Админ)
+```bash
+$response = curl -Uri "http://localhost:8080/api/v1/login" -Method Post -Headers @{"Content-Type"="application/json"} -Body '{"Email":"admin@example.com","Password":"secret123"}'
+$response.Content
+```
+Результат:
+
+![alt text](screenshots/image-1.png)
+
+### 3. Получение доступа к ресурсам (Админ)
 ```bash
 $TOKEN = "<скопируйте токен>"
 ```
@@ -74,29 +89,69 @@ curl -Uri "http://localhost:8080/api/v1/me" -Headers @{"Authorization" = "Bearer
 ```bash
 curl -Uri "http://localhost:8080/api/v1/admin/stats" -Headers @{"Authorization" = "Bearer $TOKEN"}
 ```
-Результат:
-
-![alt text](image-1.png)
-
-![alt text](image-2.png)
-
-
-### 4. Авторизация
 ```bash
-curl.exe -i -X POST http://localhost:8080/auth/login  -H "Content-Type: application/json"  -d '{\"email\":\"user@example.com\",\"password\":\"Secret123!\"}'
+curl -Uri "http://localhost:8080/api/v1/user/2" -Headers @{"Authorization" = "Bearer $TOKEN"}
 ```
 Результат:
+
+![alt text](screenshots/image-2.png)
 
 ![alt text](screenshots/image-3.png)
 
-### 5. Авторизация (с неверными данными)
+![alt text](screenshots/image-4.png)
+
+### 4. Протухание access токена и получение новой пары токенов (Админ)
 ```bash
-curl -Method DELETE http://localhost:8080/api/v1/notes/6904e846613fbf31ddac61e5
+curl -Uri "http://localhost:8080/api/v1/me" -Headers @{"Authorization" = "Bearer $TOKEN"}
+```
+```bash
+$response
+```
+```bash
+curl.exe -X POST "http://localhost:8080/api/v1/refresh" -H "Cookie: refreshToken=<скопируйте refreshToken из cookies>"
+```
+```bash
+$TOKEN = "<скопируйте токен>"
+```
+```bash
+curl -Uri "http://localhost:8080/api/v1/me" -Headers @{"Authorization" = "Bearer $TOKEN"}
 ```
 Результат:
 
-![alt text](screenshots/image-4.png)
+![alt text](screenshots/image-5.png)
 
+### 5. Аунтефикация c верными данными (Пользователь)
+```bash
+$response = curl -Uri "http://localhost:8080/api/v1/login" -Method Post -Headers @{"Content-Type"="application/json"} -Body '{"Email":"user@example.com","Password":"secret123"}'
+$response.Content
+```
+Результат:
+
+![alt text](screenshots/image-6.png)
+
+### 6. Получение доступа к ресурсам (Пользователь)
+```bash
+$TOKEN = "<скопируйте токен>"
+```
+```bash
+curl -Uri "http://localhost:8080/api/v1/me" -Headers @{"Authorization" = "Bearer $TOKEN"}
+```
+```bash
+curl -Uri "http://localhost:8080/api/v1/admin/stats" -Headers @{"Authorization" = "Bearer $TOKEN"}
+```
+```bash
+curl -Uri "http://localhost:8080/api/v1/user/2" -Headers @{"Authorization" = "Bearer $TOKEN"}
+```
+```bash
+curl -Uri "http://localhost:8080/api/v1/user/1" -Headers @{"Authorization" = "Bearer $TOKEN"}
+```
+Результат:
+
+![alt text](screenshots/image-7.png)
+
+![alt text](screenshots/image-8.png)
+
+![alt text](screenshots/image-9.png)
 
 ## Запуск
 

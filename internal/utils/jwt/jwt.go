@@ -57,6 +57,7 @@ func (r *RS256TokenManager) Parse(tokenStr string) (map[string]any, error) {
 		jwt.WithValidMethods([]string{"RS256"}),
 		jwt.WithAudience("pz10-clients"),
 		jwt.WithIssuer("pz10-auth"),
+		jwt.WithExpirationRequired(),
 	)
 	if err != nil || !t.Valid {
 		return nil, err

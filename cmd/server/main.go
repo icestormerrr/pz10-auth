@@ -29,7 +29,7 @@ func main() {
 	}
 
 	userService := services.NewUserService(userRepo)
-	authService := services.NewAuthService(userRepo, sessionRepo, jwtValidator)
+	authService := services.NewAuthService(services.AuthServiceConfig{AccessTTL: cfg.AccessTTL, RefreshTTL: cfg.RefreshTTL, MaxLoginAttempts: 2}, userRepo, sessionRepo, jwtValidator)
 
 	userHandler := handlers.NewUserHandler(userService)
 	authHandler := handlers.NewAuthHandler(authService)
